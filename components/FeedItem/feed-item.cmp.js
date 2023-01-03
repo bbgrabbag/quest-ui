@@ -8,7 +8,7 @@ export class FeedItem extends _Component {
     constructor() {
         super();
         this.css = {
-            extends: ['assets/css/global.css'],
+            extends: ['assets/css/styles.css'],
             styles: `
                 div code {
                     white-space: break-spaces;

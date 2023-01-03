@@ -17,7 +17,7 @@ export class RecordButton extends _Component {
         ];
 
         this.css = {
-            extends: ['assets/css/global.css'],
+            extends: ['assets/css/styles.css'],
             styles: `
                 #wrapper {
                     height: 30px;
@@ -100,7 +100,7 @@ export class RecordButton extends _Component {
             if (audioService.isRecording) audioService.stopRecording();
             this.stopTimer();
             this.stopInterval();
-        }, this.timerAmount)
+        }, this.timerAmount);
     }
 
     stopTimer() {

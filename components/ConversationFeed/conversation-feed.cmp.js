@@ -8,7 +8,7 @@ export class Feed extends _Component {
     constructor() {
         super();
         this.css = {
-            extends: ['assets/css/global.css'],
+            extends: ['assets/css/styles.css'],
             styles: `
                 #feed {
                     height: 350px;
@@ -102,7 +102,7 @@ export class Feed extends _Component {
     }
     render() {
         return `
-            <div id="feed"class="scrollable-y padding v h md">
+            <div id="feed"class="scrollable-y hide-scrollbar padding v h md">
             </div>
         `
     }
