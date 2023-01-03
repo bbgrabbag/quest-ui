@@ -12,6 +12,8 @@ export class Feed extends _Component {
             styles: `
                 #feed {
                     height: 350px;
+                    max-width: 500px;
+                    margin: auto;
                 }
                 @media (min-width: 400px){
                     #feed {
