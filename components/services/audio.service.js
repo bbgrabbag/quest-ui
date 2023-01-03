@@ -26,9 +26,20 @@ class AudioService extends _Service {
 
     async registerMicrophone() {
         try {
+
+            const supported = [
+                'audio/webm;codecs=opus',
+                'audio/webm',
+                'mp4 '
+            ].filter(enc => MediaRecorder.isTypeSupported(enc))
+            if (!supported.length) throw Error('audio recording not supported for this device');
+
             return navigator.mediaDevices.getUserMedia({ 'audio': true, 'video': false })
                 .then(s => {
-                    this.recorder = new MediaRecorder(s);
+                    this.recorder = new MediaRecorder(s, {
+                        audioBitsPerSecond: 48000,
+                        mimeType: 'audio/webm;codecs=opus'
+                    });
                     this.recorder.addEventListener('start', e => {
                         this.isRecording = true;
                         this.emit({ type: 'recordingstarted', payload: null })
@@ -38,14 +49,14 @@ class AudioService extends _Service {
                     });
                     this.recorder.addEventListener('stop', e => {
                         this.isRecording = false;
-                        const blob = new Blob(this.chunks, { type: 'audio/wav; codecs=0' });
+                        const blob = new Blob(this.chunks, { type: 'audio/webm;codecs=opus' });
                         this.emit({ type: 'recordingstopped', payload: null });
                         this.emit({ type: 'blobready', payload: { blob } });
                         this.clearChunks()
                     })
                 })
         } catch (err) {
-            console.error(err)
+            this.emit({ type: 'error', payload: { message: err.message } })
         }
     }
 }

@@ -8,7 +8,23 @@ export class Feed extends _Component {
     constructor() {
         super();
         this.css = {
-            extends: ['assets/css/global.css']
+            extends: ['assets/css/global.css'],
+            styles: `
+                #feed {
+                    height: 350px;
+                }
+                @media (min-width: 400px){
+                    #feed {
+                        height: 450px;
+                    }
+                }
+                @media (min-width: 600px){
+                    #feed {
+                        height: 600px;
+                    }
+                }
+                
+            `
         }
     }
 
@@ -40,6 +56,7 @@ export class Feed extends _Component {
         const itemEl = this.elements.feed.lastChild;
         itemEl.setAttribute('text', item.text);
         itemEl.setAttribute('type', item.type);
+        itemEl.scrollIntoView({ block: "start", inline: "nearest", behavior: 'smooth' })
     }
 
     handleAddItem(item) {
@@ -47,6 +64,7 @@ export class Feed extends _Component {
         itemEl.setAttribute('text', item.text);
         itemEl.setAttribute('type', item.type);
         this.elements.feed.appendChild(itemEl);
+        itemEl.scrollIntoView({ block: "start", inline: "nearest", behavior: 'smooth' })
     }
 
     handleBlob = blob => {
@@ -64,10 +82,14 @@ export class Feed extends _Component {
                 this.emit({ type: 'ADD_ITEM', payload: { item } });
                 http.sendPrompt(transcription)
                     .then(data => {
-                        const item = { type: 'answer', text: data.answer }
+                        const item = { type: 'answer', text: data.answer || ' ' }
                         this.emit({ type: 'UPDATE_LAST_CHILD', payload: { item } })
                         audioService.emit({ type: 'replycompleted' })
                     });
+            }).
+            catch(err => {
+                console.error(err);
+                audioService.emit({ type: 'error', payload: { message: 'there was a problem retrieving a reply' } })
             })
     }
 
@@ -78,7 +100,7 @@ export class Feed extends _Component {
     }
     render() {
         return `
-            <div id="feed"class="scrollable-y padding v h md" style="max-height:650px;">
+            <div id="feed"class="scrollable-y padding v h md">
             </div>
         `
     }

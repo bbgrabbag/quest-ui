@@ -1,7 +1,7 @@
 import { _Component } from "../lib.js";
 import { audioService } from "../services/audio.service.js";
 
-const DEFAULT_INFO_TEXT = 'Click and hold while speaking into the mic. Release to send.';
+const DEFAULT_INFO_TEXT = 'click to begin recording <br><br> speak into mic <br><br> click again to send <br><br> message will be sent automatically after timer runs out';
 
 export class RecordButton extends _Component {
     static tagName = 'record-button';
@@ -10,37 +10,33 @@ export class RecordButton extends _Component {
         this.eventListeners = [
             {
                 selector: '#recorder',
-                event: 'mousedown',
-                listener: this.handleMouseDown
-            },
-            {
-                selector: '#recorder',
-                event: 'mouseup',
-                listener: this.handleMouseUp
-            },
-            {
-                selector: '#recorder',
-                event: 'mouseleave',
-                listener: this.handleMouseLeave
+                event: 'click',
+                listener: this.handleClick
             }
+
         ];
 
         this.css = {
-            extends: ['assets/css/global.css']
+            extends: ['assets/css/global.css'],
+            styles: `
+                #wrapper {
+                    height: 30px;
+                }
+            `
         }
 
         this.state = {
             infoText: DEFAULT_INFO_TEXT,
-            disabled: false
+            disabled: false,
         }
+
+        this.timerAmount = 5000;
 
     }
 
     onMount() {
+        this.audioServiceSub = audioService.subscribe(this.audioServiceSubscriptionHandler);
         audioService.registerMicrophone()
-            .then(() => {
-                this.audioServiceSub = audioService.subscribe(this.audioServiceSubscriptionHandler);
-            });
     }
 
     onDismount() {
@@ -53,37 +49,73 @@ export class RecordButton extends _Component {
 
     updateButtonUI() {
         this.elements.recorder.disabled = this.state.disabled;
-        this.elements.info.innerText = this.state.infoText;
+        this.elements.info.innerHTML = this.state.infoText;
     }
 
     audioServiceSubscriptionHandler = e => {
         switch (e.type) {
             case 'recordingstarted':
+                this.styleRecordBtn('active');
+                this.startTimer();
                 return this.setState(p => ({ ...p, infoText: 'recording...' }));
             case 'recordingstopped':
+                this.styleRecordBtn('inactive');
+                this.stopTimer();
                 return this.setState(p => ({ ...p, infoText: 'recorded successfully.' }));
             case 'pendingreply':
                 return this.setState(p => ({ ...p, disabled: true, infoText: 'waiting for reply...' }));
             case 'replycompleted':
+                this.styleRecordBtn('inactive');
+                this.stopTimer();
                 return this.setState(p => ({ ...p, disabled: false, infoText: DEFAULT_INFO_TEXT }));
+            case 'error':
+                this.styleRecordBtn('inactive');
+                this.stopTimer();
+                return this.setState(p => ({ ...p, disabled: true, infoText: e.payload.message }))
         }
     }
 
-    handleMouseDown = e => {
+    startInterval() {
+        this.elements.timer.innerText = this.timerAmount / 1000;
+        this.interval = setInterval(() => {
+            if (!this.timeout) {
+                this.stopInterval();
+                return;
+            }
+            const diff = new Date().getTime() - this.timestamp.getTime()
+            this.elements.timer.innerText = this.timerAmount / 1000 - Math.floor(diff / 1000);
+        }, 1000)
+    }
+
+    stopInterval() {
+        this.interval = clearInterval(this.interval);
+        this.elements.timer.innerText = ' ';
+    }
+
+    startTimer() {
+        this.stopTimer();
+        this.startInterval();
+        this.timestamp = new Date();
+        this.timeout = setTimeout(() => {
+            if (audioService.isRecording) audioService.stopRecording();
+            this.stopTimer();
+            this.stopInterval();
+        }, this.timerAmount)
+    }
+
+    stopTimer() {
+        if (this.timeout) clearTimeout(this.timeout);
+        if (this.interval) clearInterval(this.interval);
+        this.timestamp = null;
+        this.elements.timer.innerText = ' ';
+    }
+
+    handleClick = e => {
+        if (audioService.isRecording) {
+            audioService.stopRecording();
+            return;
+        }
         audioService.startRecording();
-        this.styleRecordBtn('active');
-    }
-
-    handleMouseUp = e => {
-        if (!audioService.isRecording) return;
-        audioService.stopRecording();
-        this.styleRecordBtn('inactive');
-    }
-
-    handleMouseLeave = e => {
-        if (!audioService.isRecording) return;
-        audioService.stopRecording();
-        this.styleRecordBtn('inactive');
     }
 
     styleRecordBtn = (status) => {
@@ -97,14 +129,17 @@ export class RecordButton extends _Component {
 
     render() {
         return `
-            <div class="flex column align-items-center padding v h md">
+            <div id="wrapper"class="flex column align-items-center padding v h md">
                 <div>
                     <button class="icon" ${this.state.disabled ? 'disabled' : ''} id='recorder'>
                         <img src="/assets/icons/microphone.png" />
                     </button>
                 </div>
                 <div class="padding v md text-center">
-                    <code id="info">${this.state.infoText}</code>
+                <code id="info">${this.state.infoText}</code>
+                </div>
+                <div class="padding v sm text-center">
+                    <b><code id="timer"></code></b>
                 </div>
             </div>
         `
