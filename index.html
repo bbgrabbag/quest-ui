@@ -4,40 +4,22 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mic Test</title>
+    <link rel="stylesheet" href="assets/css/global.css" />
+    <title>Quest</title>
   </head>
   <body>
-    <div>
-        <audio id="audio-el"></audio>
+    <div class="v-height flex column padding h md v md">
+      <header></header>
+      <section
+        class="auto-height round-edges box-shadow secondary-bg"
+        style="max-height: 650px"
+      >
+        <conversation-feed></conversation-feed>
+      </section>
+      <footer>
+        <record-button></record-button>
+      </footer>
+      <script type="module" src="./main.js"></script>
     </div>
-    <button id="record-btn" disabled></button>
-    <div>
-      <span id="recording-msg" style="visibility: hidden">
-        Recording in progress...
-      </span>
-    </div>
-    <div>
-      <div id="content">
-        <h3>
-          <code>Transcription:</code>
-        </h3>
-        <div id="transcription-loading" style="display: none">
-          <code>...Loading</code>
-        </div>
-        <div>
-          <code id="transcription"> </code>
-        </div>
-        <h3>
-          <code>Response:</code>
-        </h3>
-        <div id="response-loading" style="display: none">
-            <code>...Loading</code>
-          </div>
-        <div>
-          <code id="response"style="white-space:pre-wrap;"></code>
-        </div>
-      </div>
-    </div>
-    <script type="module" src="./main.js"></script>
   </body>
 </html>

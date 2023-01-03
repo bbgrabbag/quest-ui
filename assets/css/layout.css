@@ -1,0 +1,29 @@
+.v-height {
+  height: 100vh;
+}
+
+.flex {
+  display: flex;
+}
+
+.column {
+  flex-direction: column;
+}
+
+.justify-right {
+  justify-content: right;
+}
+
+.align-items-center {
+  align-items: center;
+}
+.text-center {
+  text-align: center;
+}
+.auto-height {
+  flex: auto;
+}
+
+.scrollable-y {
+  overflow-y: auto;
+}

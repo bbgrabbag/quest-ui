@@ -1,0 +1,24 @@
+.padding.h.sm {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.padding.v.sm {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.padding.h.md {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.padding.v.md {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.padding.h.xlg {
+  padding-left: 64px;
+  padding-right: 64px;
+}

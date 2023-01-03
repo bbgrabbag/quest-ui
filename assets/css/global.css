@@ -1,0 +1,22 @@
+@import url("./theme.css");
+@import url("./layout.css");
+@import url("./spacing.css");
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--primary-bg-color);
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+.icon.active-recording{
+  background-color: var(--active-recording);
+}
+
+

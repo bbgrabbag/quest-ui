@@ -1,0 +1,56 @@
+:root {
+  --primary-bg-color: lightsteelblue;
+  --secondary-bg-color: white;
+  --primary: lightblue;
+  --secondary: lightgrey;
+  --disabled: slategrey;
+  --active-recording: rgb(174, 73, 73);
+}
+
+.thin-border {
+  border: 1px solid black;
+}
+
+.round-edges {
+  border-radius: 25px;
+}
+
+.icon {
+  background-color: transparent;
+  border-radius: 50%;
+  border: none;
+  height: 48px;
+  width: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: border 0.4s, background-color 0.4s;
+}
+
+.icon:hover {
+  background-color: white;
+  border: 1px solid black;
+}
+
+.icon:disabled {
+  background-color: var(--disabled);
+  cursor: wait;
+  border: none;
+}
+
+.icon img {
+  width: 18px;
+  border: none;
+}
+
+.primary-bg {
+  background: var(--primary-bg-color);
+}
+
+.secondary-bg {
+  background: var(--secondary-bg-color);
+}
+
+.box-shadow {
+  box-shadow: 1px 1px 1px;
+}
