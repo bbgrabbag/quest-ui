@@ -24,12 +24,26 @@ class AudioService extends _Service {
         this.recorder.start();
     }
 
+    isDeviceSupported() {
+        const supportsMemeTypes = [
+            'audio/webm',
+            'audio/webm;codecs=opus'
+        ].filter(MediaRecorder.isTypeSupported).length;
+
+        const supportsGetUserMedia = !!(navigator.mediaDevices.getUserMedia || navigator.mediaDevices)
+        return supportsMemeTypes && supportsGetUserMedia
+    }
+
+    getUserMedia(config) {
+        if (navigator.mediaDevices.getUserMedia) return navigator.mediaDevices.getUserMedia(config);
+        return navigator.getUserMedia(config);
+    }
+
     async registerMicrophone() {
         try {
-            const supportedMimeTypes = ['audio/webm'];
-            if(!supportedMimeTypes.filter(MediaRecorder.isTypeSupported).length)
+            if (!this.isDeviceSupported())
                 throw Error('device is currently not supported')
-            return navigator.mediaDevices.getUserMedia({ 'audio': true, 'video': false })
+            return this.getUserMedia({ 'audio': true, 'video': false })
                 .then(s => {
                     this.recorder = new MediaRecorder(s)
                     this.recorder.addEventListener('start', e => {
