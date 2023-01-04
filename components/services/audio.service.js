@@ -1,4 +1,5 @@
 import { _Service } from "../lib.js";
+// import ffmpeg from '../../vendor/ffmpeg.js';
 
 class AudioService extends _Service {
     constructor() {
@@ -6,6 +7,12 @@ class AudioService extends _Service {
         this.chunks = [];
         this.recorder = null;
         this.isRecording = false;
+        this.supportedMemeTypes = [
+            'audio/webm',
+            'audio/webm;codecs=opus',
+            'audio/ogg;codecs=opus',
+            // 'audio/mp4'
+        ]
     }
 
     addChunk(data) {
@@ -25,11 +32,7 @@ class AudioService extends _Service {
     }
 
     isDeviceSupported() {
-        const supportsMemeTypes = [
-            'audio/webm',
-            'audio/webm;codecs=opus'
-        ].filter(MediaRecorder.isTypeSupported).length;
-
+        const supportsMemeTypes = this.supportedMemeTypes.filter(MediaRecorder.isTypeSupported).length;
         const supportsGetUserMedia = !!(navigator.mediaDevices.getUserMedia || navigator.mediaDevices)
         return supportsMemeTypes && supportsGetUserMedia
     }
@@ -37,6 +40,33 @@ class AudioService extends _Service {
     getUserMedia(config) {
         if (navigator.mediaDevices.getUserMedia) return navigator.mediaDevices.getUserMedia(config);
         return navigator.getUserMedia(config);
+    }
+
+    async createAudioFileBlob(mimeType) {
+        const blob = new Blob(this.chunks, { type: mimeType });
+
+        const convertMp4ToWebm = (blob) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader()
+                reader.readAsArrayBuffer(blob);
+                reader.onload = (e) => {
+                    // handle webm to mp4 conversion here
+                    const blob = new Blob([e.target.result], {type: 'audio/webm'})
+                    resolve(blob);
+                }
+                reader.onerror = err => reject(err);
+            })
+        }
+        switch (mimeType) {
+            case 'audio/mp4':
+                return await convertMp4ToWebm(blob);
+            case 'audio/webm':
+            case 'audio/webm;codecs=opus':
+            case 'audio/ogg;codecs=opus':
+            default:
+                return blob;
+
+        }
     }
 
     async registerMicrophone() {
@@ -55,10 +85,13 @@ class AudioService extends _Service {
                     });
                     this.recorder.addEventListener('stop', e => {
                         this.isRecording = false;
-                        const blob = new Blob(this.chunks, { type: e.target.mimeType });
-                        this.emit({ type: 'recordingstopped', payload: null });
-                        this.emit({ type: 'blobready', payload: { blob } });
-                        this.clearChunks()
+                        this.createAudioFileBlob(e.target.mimeType)
+                            .then(blob => {
+                                this.emit({ type: 'recordingstopped', payload: null });
+                                this.emit({ type: 'blobready', payload: { blob } });
+                                this.clearChunks()
+                            })
+                            .catch(err => console.error(err))
                     })
                 })
         } catch (err) {
