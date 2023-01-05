@@ -1,7 +1,7 @@
 
 const hostname = window.location.hostname;
-// const baseUrl = hostname == 'localhost' ? 'http://localhost:8080' : 'https://quest-api.herokuapp.com';
-const baseUrl = 'https://quest-api.herokuapp.com';
+const baseUrl = hostname == 'localhost' ? 'http://localhost:8080' : 'https://quest-api.herokuapp.com';
+// const baseUrl = 'https://quest-api.herokuapp.com';
 
 export const sendFile = (blob) => {
     const fd = new FormData();

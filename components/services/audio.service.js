@@ -1,5 +1,4 @@
 import { _Service } from "../lib.js";
-// import ffmpeg from '../../vendor/ffmpeg.js';
 
 class AudioService extends _Service {
     constructor() {
@@ -33,12 +32,12 @@ class AudioService extends _Service {
 
     isDeviceSupported() {
         const supportsMemeTypes = this.supportedMemeTypes.filter(MediaRecorder.isTypeSupported).length;
-        const supportsGetUserMedia = !!(navigator.mediaDevices.getUserMedia || navigator.mediaDevices)
+        const supportsGetUserMedia = !!(navigator.mediaDevices?.getUserMedia || navigator.getUserMedia)
         return supportsMemeTypes && supportsGetUserMedia
     }
 
     getUserMedia(config) {
-        if (navigator.mediaDevices.getUserMedia) return navigator.mediaDevices.getUserMedia(config);
+        if (navigator.mediaDevices?.getUserMedia) return navigator.mediaDevices.getUserMedia(config);
         return navigator.getUserMedia(config);
     }
 
@@ -57,6 +56,7 @@ class AudioService extends _Service {
                 reader.onerror = err => reject(err);
             })
         }
+
         switch (mimeType) {
             case 'audio/mp4':
                 return await convertMp4ToWebm(blob);
