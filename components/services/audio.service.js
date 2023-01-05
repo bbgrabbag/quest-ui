@@ -44,22 +44,8 @@ class AudioService extends _Service {
     async createAudioFileBlob(mimeType) {
         const blob = new Blob(this.chunks, { type: mimeType });
 
-        const convertMp4ToWebm = (blob) => {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader()
-                reader.readAsArrayBuffer(blob);
-                reader.onload = (e) => {
-                    // handle webm to mp4 conversion here
-                    const blob = new Blob([e.target.result], {type: 'audio/webm'})
-                    resolve(blob);
-                }
-                reader.onerror = err => reject(err);
-            })
-        }
-
         switch (mimeType) {
-            case 'audio/mp4':
-                return await convertMp4ToWebm(blob);
+            // case 'audio/mp4':
             case 'audio/webm':
             case 'audio/webm;codecs=opus':
             case 'audio/ogg;codecs=opus':
